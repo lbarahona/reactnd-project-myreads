@@ -6,7 +6,7 @@ import * as BooksAPI from './BooksAPI'
 
 class BookSearch extends Component {
   state = {
-    Books: [],
+    books: [],
     query: ''
   }
 
@@ -17,13 +17,11 @@ class BookSearch extends Component {
 
   handleChange = (event) => {
     var value = event.target.value
-    this.setState(() => {
-      return {query: value}
-    })
+    this.setState({query: value.trim()})
     this.searchBooks(value)
   }
 
-  changeBookShelf = (books) => {
+  updateBookShelf = (books) => {
     let allBooks = this.props.myBooks
     for (let book of books) {
       book.shelf = "none"
@@ -42,16 +40,14 @@ class BookSearch extends Component {
   searchBooks = (val) => {
     if (val.length !== 0) {
       BooksAPI.search(val, 10).then((books) => {
-        if (books.length > 0) {
+        if (books.length) {
           books = books.filter((book) => (book.imageLinks))
-          books = this.changeBookShelf(books)
-          this.setState(() => {
-            return {Books: books}
-          })
+          books = this.updateBookShelf(books)
+          this.setState( {books: books} )
         }
       })
     } else {
-      this.setState({Books: [], query: ''})
+      this.setState({books: [], query: ''})
     }
   }
 
@@ -75,9 +71,14 @@ class BookSearch extends Component {
         </div>
         <div className="search-books-results">
           <ol className="books-grid">
-            {this.state.query.length > 0 && this.state.Books.map((book, index) => (<Book book={book} key={index} onUpdate={(shelf) => {
-              this.addBook(book, shelf)
-            }}/>))}
+            {this.state.query.length > 0 && this.state.books.map((book, index) => (
+              <Book 
+                book={book} 
+                key={index} 
+                onUpdate={(shelf) => {
+                  this.addBook(book, shelf)
+              }}/>)
+            )}
           </ol>
         </div>
       </div>
